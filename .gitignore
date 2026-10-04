@@ -1,0 +1,56 @@
+# ─── Secrets (NEVER commit) ───────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Python ───────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.python-version
+
+# uv
+.uv/
+# uv.lock IS committed (reproducible installs) — do not ignore it.
+
+# ─── Testing / coverage ───────────────────────────────────────────────────
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ─── Node / Next.js (dashboard) ───────────────────────────────────────────
+node_modules/
+dashboard/.next/
+dashboard/out/
+dashboard/.vercel/
+npm-debug.log*
+yarn-error.log*
+
+# ─── Docker ───────────────────────────────────────────────────────────────
+*.pid
+
+# ─── OS / editor ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ─── Argus notes ──────────────────────────────────────────────────────────
+# traces/ and dashboard/public/traces/ are COMMITTED real evidence — NOT ignored.
+# Scratch run output (if ever written elsewhere) goes here:
+*.tmp.trace.json
+
+# ─── Private: internal planning & process (NOT for the public repo) ─────────
+# Kept local only — the public story lives in README.md (added later).
+docs/
+logs/
+CLAUDE.md
+.claude/

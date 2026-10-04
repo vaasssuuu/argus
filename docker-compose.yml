@@ -1,0 +1,9 @@
+# Local dev. Brings up the bundled vulnerable target.
+# The runner service is added in build step 2, once runner/ exists.
+services:
+  target:
+    build:
+      context: .
+      dockerfile: target/Dockerfile
+    ports:
+      - "5000:5000"

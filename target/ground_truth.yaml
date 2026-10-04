@@ -1,0 +1,48 @@
+# Argus target — ground-truth manifest (the oracle's answer key + eval source).
+#
+# This file is NOT served by the app and is NOT given to the agent's LLM. The agent must
+# reach its verdicts from observed behaviour; this manifest only scores and validates.
+#
+# label meanings:
+#   vulnerable  a genuine IDOR/BAC — the agent MUST confirm it
+#   trap        looks like IDOR (takes an object id) but is correctly authorized — MUST be rejected as a false positive
+#   safe        no cross-principal object boundary — not a candidate
+version: 1
+
+principals:
+  alice: { id: u_alice, token: tok_alice_3f9a }
+  bob:   { id: u_bob,   token: tok_bob_7c2e }
+
+endpoints:
+  - { method: GET, path: "/api/invoices/{id}",     label: vulnerable, resource: invoices,      reason: "no ownership check" }
+  - { method: GET, path: "/api/documents/{id}",    label: vulnerable, resource: documents,     reason: "no ownership check" }
+  - { method: GET, path: "/api/messages/{id}",     label: vulnerable, resource: messages,      reason: "no ownership check" }
+  - { method: GET, path: "/api/users/{id}/profile", label: trap,      resource: profiles,      reason: "ownership enforced; 403 cross-principal" }
+  - { method: GET, path: "/api/orders/{id}",       label: trap,       resource: orders,        reason: "ownership enforced; 403 cross-principal" }
+  - { method: GET, path: "/api/settings/{id}",     label: trap,       resource: settings,      reason: "ownership enforced; 403 cross-principal" }
+  - { method: GET, path: "/api/announcements/{id}", label: safe,      resource: announcements, reason: "public resource; no owner boundary" }
+  - { method: GET, path: "/api/invoices",          label: safe,       resource: invoices,      reason: "correctly scoped list" }
+  - { method: GET, path: "/api/me",                label: safe,       resource: null,          reason: "caller identity; no object id" }
+  - { method: GET, path: "/api/health",            label: safe,       resource: null,          reason: "no auth, no object reference" }
+
+# Object ownership + the unique secret the oracle looks for as content evidence.
+# `owner` is a principal alias (above); secrets MUST match seed_data.py (a test enforces this).
+objects:
+  invoices:
+    inv_1001: { owner: alice, secret: ALICE-INV-7a3f }
+    inv_2001: { owner: bob,   secret: BOB-INV-9c2e }
+  documents:
+    doc_1001: { owner: alice, secret: ALICE-DOC-11b8 }
+    doc_2001: { owner: bob,   secret: BOB-DOC-55d4 }
+  messages:
+    msg_1001: { owner: alice, secret: ALICE-MSG-2e71 }
+    msg_2001: { owner: bob,   secret: BOB-MSG-8a09 }
+  profiles:
+    u_alice: { owner: alice, secret: ALICE-PRO-4d2c }
+    u_bob:   { owner: bob,   secret: BOB-PRO-6f1a }
+  orders:
+    ord_1001: { owner: alice, secret: ALICE-ORD-9b3d }
+    ord_2001: { owner: bob,   secret: BOB-ORD-7e52 }
+  settings:
+    set_1001: { owner: alice, secret: ALICE-SET-1c4e }
+    set_2001: { owner: bob,   secret: BOB-SET-3a8f }
