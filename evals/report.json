@@ -1,0 +1,124 @@
+{
+  "metrics": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "accuracy": 1.0,
+    "confusion": {
+      "TP": 6,
+      "FP": 0,
+      "FN": 0,
+      "TN": 6
+    },
+    "n_cases": 12
+  },
+  "cases": [
+    {
+      "outcome": "TP",
+      "label": "vulnerable",
+      "endpoint": "/api/invoices/{id}",
+      "attack": "alice->bob",
+      "object_id": "inv_2001",
+      "verdict": "confirmed",
+      "status": 200
+    },
+    {
+      "outcome": "TP",
+      "label": "vulnerable",
+      "endpoint": "/api/invoices/{id}",
+      "attack": "bob->alice",
+      "object_id": "inv_1001",
+      "verdict": "confirmed",
+      "status": 200
+    },
+    {
+      "outcome": "TP",
+      "label": "vulnerable",
+      "endpoint": "/api/documents/{id}",
+      "attack": "alice->bob",
+      "object_id": "doc_2001",
+      "verdict": "confirmed",
+      "status": 200
+    },
+    {
+      "outcome": "TP",
+      "label": "vulnerable",
+      "endpoint": "/api/documents/{id}",
+      "attack": "bob->alice",
+      "object_id": "doc_1001",
+      "verdict": "confirmed",
+      "status": 200
+    },
+    {
+      "outcome": "TP",
+      "label": "vulnerable",
+      "endpoint": "/api/messages/{id}",
+      "attack": "alice->bob",
+      "object_id": "msg_2001",
+      "verdict": "confirmed",
+      "status": 200
+    },
+    {
+      "outcome": "TP",
+      "label": "vulnerable",
+      "endpoint": "/api/messages/{id}",
+      "attack": "bob->alice",
+      "object_id": "msg_1001",
+      "verdict": "confirmed",
+      "status": 200
+    },
+    {
+      "outcome": "TN",
+      "label": "trap",
+      "endpoint": "/api/users/{id}/profile",
+      "attack": "alice->bob",
+      "object_id": "u_bob",
+      "verdict": "rejected",
+      "status": 403
+    },
+    {
+      "outcome": "TN",
+      "label": "trap",
+      "endpoint": "/api/users/{id}/profile",
+      "attack": "bob->alice",
+      "object_id": "u_alice",
+      "verdict": "rejected",
+      "status": 403
+    },
+    {
+      "outcome": "TN",
+      "label": "trap",
+      "endpoint": "/api/orders/{id}",
+      "attack": "alice->bob",
+      "object_id": "ord_2001",
+      "verdict": "rejected",
+      "status": 403
+    },
+    {
+      "outcome": "TN",
+      "label": "trap",
+      "endpoint": "/api/orders/{id}",
+      "attack": "bob->alice",
+      "object_id": "ord_1001",
+      "verdict": "rejected",
+      "status": 403
+    },
+    {
+      "outcome": "TN",
+      "label": "trap",
+      "endpoint": "/api/settings/{id}",
+      "attack": "alice->bob",
+      "object_id": "set_2001",
+      "verdict": "rejected",
+      "status": 403
+    },
+    {
+      "outcome": "TN",
+      "label": "trap",
+      "endpoint": "/api/settings/{id}",
+      "attack": "bob->alice",
+      "object_id": "set_1001",
+      "verdict": "rejected",
+      "status": 403
+    }
+  ]
+}
