@@ -54,3 +54,8 @@ docs/
 logs/
 CLAUDE.md
 .claude/
+
+# ─── Personal files that happen to live in this folder — NEVER publish ──────
+*.pdf
+Screenshot*.png
+*_Resume*.pdf

@@ -1,0 +1,45 @@
+# MedVault (target2) — ground-truth manifest. NOT served by the app, NOT given to the LLM.
+# Scores/validates only. Labels: vulnerable (must confirm) / trap (must reject) / safe.
+version: 1
+
+principals:
+  alice: { id: pat_alice, token: tok_med_alice_a1 }
+  bob:   { id: pat_bob,   token: tok_med_bob_b2 }
+  carol: { id: pat_carol, token: tok_med_carol_c3 }
+
+endpoints:
+  - { method: GET, path: "/api/records/{id}",        label: vulnerable, resource: records,       reason: "no ownership check" }
+  - { method: GET, path: "/api/prescriptions/{id}",  label: vulnerable, resource: prescriptions, reason: "no ownership check" }
+  - { method: GET, path: "/api/labs/{id}",           label: vulnerable, resource: labs,          reason: "no ownership check" }
+  - { method: GET, path: "/api/appointments/{id}",   label: trap,       resource: appointments,  reason: "ownership enforced; 403 cross-principal" }
+  - { method: GET, path: "/api/billing/{id}",        label: trap,       resource: billing,       reason: "ownership enforced; 403 cross-principal" }
+  - { method: GET, path: "/api/messages/{id}",       label: trap,       resource: messages,      reason: "ownership enforced; 403 cross-principal" }
+  - { method: GET, path: "/api/announcements/{id}",  label: safe,       resource: announcements, reason: "public resource; no owner boundary" }
+  - { method: GET, path: "/api/me",                  label: safe,       resource: null,          reason: "caller identity; no object id" }
+  - { method: GET, path: "/api/health",              label: safe,       resource: null,          reason: "no auth, no object reference" }
+
+objects:
+  records:
+    "5001": { owner: alice, secret: AL-REC-5001 }
+    "5002": { owner: bob,   secret: BO-REC-5002 }
+    "5003": { owner: carol, secret: CA-REC-5003 }
+  prescriptions:
+    "7001": { owner: alice, secret: AL-RX-7001 }
+    "7002": { owner: bob,   secret: BO-RX-7002 }
+    "7003": { owner: carol, secret: CA-RX-7003 }
+  labs:
+    "9001": { owner: alice, secret: AL-LAB-9001 }
+    "9002": { owner: bob,   secret: BO-LAB-9002 }
+    "9003": { owner: carol, secret: CA-LAB-9003 }
+  appointments:
+    "3001": { owner: alice, secret: AL-APT-3001 }
+    "3002": { owner: bob,   secret: BO-APT-3002 }
+    "3003": { owner: carol, secret: CA-APT-3003 }
+  billing:
+    "4001": { owner: alice, secret: AL-BILL-4001 }
+    "4002": { owner: bob,   secret: BO-BILL-4002 }
+    "4003": { owner: carol, secret: CA-BILL-4003 }
+  messages:
+    "6001": { owner: alice, secret: AL-MSG-6001 }
+    "6002": { owner: bob,   secret: BO-MSG-6002 }
+    "6003": { owner: carol, secret: CA-MSG-6003 }

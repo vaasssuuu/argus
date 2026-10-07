@@ -1,0 +1,790 @@
+{
+  "run_id": "9d06965c",
+  "target": "bundled: argus-target",
+  "started": "2026-10-04T20:13:08.695797+00:00",
+  "steps": [
+    {
+      "node": "recon",
+      "summary": "6 object endpoints, 12 owned ids",
+      "data": {
+        "templates": {
+          "documents": "GET /api/documents/{id}",
+          "invoices": "GET /api/invoices/{id}",
+          "messages": "GET /api/messages/{id}",
+          "orders": "GET /api/orders/{id}",
+          "profiles": "GET /api/users/{id}/profile",
+          "settings": "GET /api/settings/{id}"
+        },
+        "owned": {
+          "alice": {
+            "documents": [
+              "doc_1001"
+            ],
+            "invoices": [
+              "inv_1001"
+            ],
+            "messages": [
+              "msg_1001"
+            ],
+            "orders": [
+              "ord_1001"
+            ],
+            "profiles": [
+              "u_alice"
+            ],
+            "settings": [
+              "set_1001"
+            ]
+          },
+          "bob": {
+            "documents": [
+              "doc_2001"
+            ],
+            "invoices": [
+              "inv_2001"
+            ],
+            "messages": [
+              "msg_2001"
+            ],
+            "orders": [
+              "ord_2001"
+            ],
+            "profiles": [
+              "u_bob"
+            ],
+            "settings": [
+              "set_2001"
+            ]
+          }
+        }
+      },
+      "at": "2026-10-04T20:13:35.470902+00:00"
+    },
+    {
+      "node": "candidates",
+      "summary": "12 valid candidate(s) (0 dropped as invalid)",
+      "data": {
+        "candidates": [
+          {
+            "endpoint": "GET /api/documents/{id}",
+            "resource": "documents",
+            "attacker": "alice",
+            "victim": "bob",
+            "object_id": "doc_2001"
+          },
+          {
+            "endpoint": "GET /api/documents/{id}",
+            "resource": "documents",
+            "attacker": "bob",
+            "victim": "alice",
+            "object_id": "doc_1001"
+          },
+          {
+            "endpoint": "GET /api/invoices/{id}",
+            "resource": "invoices",
+            "attacker": "alice",
+            "victim": "bob",
+            "object_id": "inv_2001"
+          },
+          {
+            "endpoint": "GET /api/invoices/{id}",
+            "resource": "invoices",
+            "attacker": "bob",
+            "victim": "alice",
+            "object_id": "inv_1001"
+          },
+          {
+            "endpoint": "GET /api/messages/{id}",
+            "resource": "messages",
+            "attacker": "alice",
+            "victim": "bob",
+            "object_id": "msg_2001"
+          },
+          {
+            "endpoint": "GET /api/messages/{id}",
+            "resource": "messages",
+            "attacker": "bob",
+            "victim": "alice",
+            "object_id": "msg_1001"
+          },
+          {
+            "endpoint": "GET /api/orders/{id}",
+            "resource": "orders",
+            "attacker": "alice",
+            "victim": "bob",
+            "object_id": "ord_2001"
+          },
+          {
+            "endpoint": "GET /api/orders/{id}",
+            "resource": "orders",
+            "attacker": "bob",
+            "victim": "alice",
+            "object_id": "ord_1001"
+          },
+          {
+            "endpoint": "GET /api/users/{id}/profile",
+            "resource": "profiles",
+            "attacker": "alice",
+            "victim": "bob",
+            "object_id": "u_bob"
+          },
+          {
+            "endpoint": "GET /api/users/{id}/profile",
+            "resource": "profiles",
+            "attacker": "bob",
+            "victim": "alice",
+            "object_id": "u_alice"
+          },
+          {
+            "endpoint": "GET /api/settings/{id}",
+            "resource": "settings",
+            "attacker": "alice",
+            "victim": "bob",
+            "object_id": "set_2001"
+          },
+          {
+            "endpoint": "GET /api/settings/{id}",
+            "resource": "settings",
+            "attacker": "bob",
+            "victim": "alice",
+            "object_id": "set_1001"
+          }
+        ]
+      },
+      "at": "2026-10-04T20:13:40.741850+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "alice\u2192bob GET /api/documents/doc_2001",
+      "data": {},
+      "at": "2026-10-04T20:13:41.773909+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "alice\u2192bob GET /api/documents/{id} \u2192 200",
+      "data": {
+        "status": 200
+      },
+      "at": "2026-10-04T20:13:42.796006+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "confirmed: alice retrieved bob's document (doc_2001) \u2014 response carried the victim's unique data.",
+      "data": {
+        "finding_id": "documents:doc_2001:alice->bob",
+        "checks": [
+          "status_2xx",
+          "victim_content_present",
+          "ground_truth_cross_boundary",
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:42.797097+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "bob\u2192alice GET /api/documents/doc_1001",
+      "data": {},
+      "at": "2026-10-04T20:13:43.806195+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "bob\u2192alice GET /api/documents/{id} \u2192 200",
+      "data": {
+        "status": 200
+      },
+      "at": "2026-10-04T20:13:44.864551+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "confirmed: bob retrieved alice's document (doc_1001) \u2014 response carried the victim's unique data.",
+      "data": {
+        "finding_id": "documents:doc_1001:bob->alice",
+        "checks": [
+          "status_2xx",
+          "victim_content_present",
+          "ground_truth_cross_boundary",
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:44.866466+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "alice\u2192bob GET /api/invoices/inv_2001",
+      "data": {},
+      "at": "2026-10-04T20:13:45.707251+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "alice\u2192bob GET /api/invoices/{id} \u2192 200",
+      "data": {
+        "status": 200
+      },
+      "at": "2026-10-04T20:13:46.789575+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "confirmed: alice retrieved bob's invoice (inv_2001) \u2014 response carried the victim's unique data.",
+      "data": {
+        "finding_id": "invoices:inv_2001:alice->bob",
+        "checks": [
+          "status_2xx",
+          "victim_content_present",
+          "ground_truth_cross_boundary",
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:46.791571+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "bob\u2192alice GET /api/invoices/inv_1001",
+      "data": {},
+      "at": "2026-10-04T20:13:47.381726+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "bob\u2192alice GET /api/invoices/{id} \u2192 200",
+      "data": {
+        "status": 200
+      },
+      "at": "2026-10-04T20:13:48.454187+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "confirmed: bob retrieved alice's invoice (inv_1001) \u2014 response carried the victim's unique data.",
+      "data": {
+        "finding_id": "invoices:inv_1001:bob->alice",
+        "checks": [
+          "status_2xx",
+          "victim_content_present",
+          "ground_truth_cross_boundary",
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:48.455963+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "alice\u2192bob GET /api/messages/msg_2001",
+      "data": {},
+      "at": "2026-10-04T20:13:49.187565+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "alice\u2192bob GET /api/messages/{id} \u2192 200",
+      "data": {
+        "status": 200
+      },
+      "at": "2026-10-04T20:13:50.201929+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "confirmed: alice retrieved bob's message (msg_2001) \u2014 response carried the victim's unique data.",
+      "data": {
+        "finding_id": "messages:msg_2001:alice->bob",
+        "checks": [
+          "status_2xx",
+          "victim_content_present",
+          "ground_truth_cross_boundary",
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:50.203006+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "bob\u2192alice GET /api/messages/msg_1001",
+      "data": {},
+      "at": "2026-10-04T20:13:50.863208+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "bob\u2192alice GET /api/messages/{id} \u2192 200",
+      "data": {
+        "status": 200
+      },
+      "at": "2026-10-04T20:13:51.859702+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "confirmed: bob retrieved alice's message (msg_1001) \u2014 response carried the victim's unique data.",
+      "data": {
+        "finding_id": "messages:msg_1001:bob->alice",
+        "checks": [
+          "status_2xx",
+          "victim_content_present",
+          "ground_truth_cross_boundary",
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:51.861330+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "alice\u2192bob GET /api/orders/ord_2001",
+      "data": {},
+      "at": "2026-10-04T20:13:52.537933+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "alice\u2192bob GET /api/orders/{id} \u2192 403",
+      "data": {
+        "status": 403
+      },
+      "at": "2026-10-04T20:13:53.608517+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "false_positive: access denied (HTTP 403); access control held.",
+      "data": {
+        "finding_id": "orders:ord_2001:alice->bob",
+        "checks": [
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:53.609607+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "bob\u2192alice GET /api/orders/ord_1001",
+      "data": {},
+      "at": "2026-10-04T20:13:54.588070+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "bob\u2192alice GET /api/orders/{id} \u2192 403",
+      "data": {
+        "status": 403
+      },
+      "at": "2026-10-04T20:13:55.602771+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "false_positive: access denied (HTTP 403); access control held.",
+      "data": {
+        "finding_id": "orders:ord_1001:bob->alice",
+        "checks": [
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:55.604664+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "alice\u2192bob GET /api/users/u_bob/profile",
+      "data": {},
+      "at": "2026-10-04T20:13:56.581831+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "alice\u2192bob GET /api/users/{id}/profile \u2192 403",
+      "data": {
+        "status": 403
+      },
+      "at": "2026-10-04T20:13:57.599070+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "false_positive: access denied (HTTP 403); access control held.",
+      "data": {
+        "finding_id": "profiles:u_bob:alice->bob",
+        "checks": [
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:57.599673+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "bob\u2192alice GET /api/users/u_alice/profile",
+      "data": {},
+      "at": "2026-10-04T20:13:58.302086+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "bob\u2192alice GET /api/users/{id}/profile \u2192 403",
+      "data": {
+        "status": 403
+      },
+      "at": "2026-10-04T20:13:59.343441+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "false_positive: access denied (HTTP 403); access control held.",
+      "data": {
+        "finding_id": "profiles:u_alice:bob->alice",
+        "checks": [
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:13:59.347077+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "alice\u2192bob GET /api/settings/set_2001",
+      "data": {},
+      "at": "2026-10-04T20:14:00.508628+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "alice\u2192bob GET /api/settings/{id} \u2192 403",
+      "data": {
+        "status": 403
+      },
+      "at": "2026-10-04T20:14:01.579178+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "false_positive: access denied (HTTP 403); access control held.",
+      "data": {
+        "finding_id": "settings:set_2001:alice->bob",
+        "checks": [
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:14:01.587291+00:00"
+    },
+    {
+      "node": "poc_synthesis",
+      "summary": "bob\u2192alice GET /api/settings/set_1001",
+      "data": {},
+      "at": "2026-10-04T20:14:02.296215+00:00"
+    },
+    {
+      "node": "execute",
+      "summary": "bob\u2192alice GET /api/settings/{id} \u2192 403",
+      "data": {
+        "status": 403
+      },
+      "at": "2026-10-04T20:14:03.306493+00:00"
+    },
+    {
+      "node": "classify",
+      "summary": "false_positive: access denied (HTTP 403); access control held.",
+      "data": {
+        "finding_id": "settings:set_1001:bob->alice",
+        "checks": [
+          "cross_principal"
+        ]
+      },
+      "at": "2026-10-04T20:14:03.308334+00:00"
+    },
+    {
+      "node": "remediate",
+      "summary": "fix suggestions for 6 confirmed finding(s)",
+      "data": {},
+      "at": "2026-10-04T20:14:11.485962+00:00"
+    }
+  ],
+  "findings": [
+    {
+      "id": "documents:doc_2001:alice->bob",
+      "endpoint": "GET /api/documents/{id}",
+      "attacker": "alice",
+      "victim": "bob",
+      "verdict": "confirmed",
+      "checks": [
+        "status_2xx",
+        "victim_content_present",
+        "ground_truth_cross_boundary",
+        "cross_principal"
+      ],
+      "reason": "alice retrieved bob's document (doc_2001) \u2014 response carried the victim's unique data.",
+      "request": {
+        "method": "GET",
+        "path": "/api/documents/doc_2001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body_excerpt": "{\"owner\":\"u_bob\",\"secret\":\"BOB-DOC-55d4\",\"title\":\"Vendor contract\"}\n"
+      },
+      "remediation": "On GET /api/documents/{id}, enforce an ownership/tenant check by loading the document and verifying its owner/tenant ID matches the authenticated user derived from the session or token before returning any data; if it does not match and the user lacks an explicit grant, deny with 403 or 404.",
+      "schema_version": 1
+    },
+    {
+      "id": "documents:doc_1001:bob->alice",
+      "endpoint": "GET /api/documents/{id}",
+      "attacker": "bob",
+      "victim": "alice",
+      "verdict": "confirmed",
+      "checks": [
+        "status_2xx",
+        "victim_content_present",
+        "ground_truth_cross_boundary",
+        "cross_principal"
+      ],
+      "reason": "bob retrieved alice's document (doc_1001) \u2014 response carried the victim's unique data.",
+      "request": {
+        "method": "GET",
+        "path": "/api/documents/doc_1001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body_excerpt": "{\"owner\":\"u_alice\",\"secret\":\"ALICE-DOC-11b8\",\"title\":\"Q3 strategy\"}\n"
+      },
+      "remediation": "Enforce a server-side ownership check on every document fetch: after resolving the document by `{id}`, verify the authenticated user matches the document\u2019s owner (or has an explicit grant), and return 403/404 if not. Prefer scoping the query to the authenticated user\u2019s owner ID so unauthorized documents are never even loaded.",
+      "schema_version": 1
+    },
+    {
+      "id": "invoices:inv_2001:alice->bob",
+      "endpoint": "GET /api/invoices/{id}",
+      "attacker": "alice",
+      "victim": "bob",
+      "verdict": "confirmed",
+      "checks": [
+        "status_2xx",
+        "victim_content_present",
+        "ground_truth_cross_boundary",
+        "cross_principal"
+      ],
+      "reason": "alice retrieved bob's invoice (inv_2001) \u2014 response carried the victim's unique data.",
+      "request": {
+        "method": "GET",
+        "path": "/api/invoices/inv_2001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body_excerpt": "{\"amount\":1375.5,\"customer\":\"Globex Inc\",\"owner\":\"u_bob\",\"secret\":\"BOB-INV-9c2e\"}\n"
+      },
+      "remediation": "On every request, derive the caller's identity from the authenticated session/token and enforce an ownership check server-side\u2014e.g., scope the lookup to `invoice.id = {id} AND invoice.owner_id = current_user.id`\u2014returning 404 (not 403) when no matching record exists. Never trust a client-supplied user or tenant identifier, and apply the same owner-scoped filter to all read and write operations on that resource.",
+      "schema_version": 1
+    },
+    {
+      "id": "invoices:inv_1001:bob->alice",
+      "endpoint": "GET /api/invoices/{id}",
+      "attacker": "bob",
+      "victim": "alice",
+      "verdict": "confirmed",
+      "checks": [
+        "status_2xx",
+        "victim_content_present",
+        "ground_truth_cross_boundary",
+        "cross_principal"
+      ],
+      "reason": "bob retrieved alice's invoice (inv_1001) \u2014 response carried the victim's unique data.",
+      "request": {
+        "method": "GET",
+        "path": "/api/invoices/inv_1001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body_excerpt": "{\"amount\":420.0,\"customer\":\"Northwind Ltd\",\"owner\":\"u_alice\",\"secret\":\"ALICE-INV-7a3f\"}\n"
+      },
+      "remediation": "Enforce an ownership check on every request: derive the caller's identity from the authenticated session/token (never from a client-supplied user or tenant ID) and confirm the invoice's owner matches the caller before returning any data. If it doesn't match, respond with 404 (or 403) and reveal nothing about the resource's existence.",
+      "schema_version": 1
+    },
+    {
+      "id": "messages:msg_2001:alice->bob",
+      "endpoint": "GET /api/messages/{id}",
+      "attacker": "alice",
+      "victim": "bob",
+      "verdict": "confirmed",
+      "checks": [
+        "status_2xx",
+        "victim_content_present",
+        "ground_truth_cross_boundary",
+        "cross_principal"
+      ],
+      "reason": "alice retrieved bob's message (msg_2001) \u2014 response carried the victim's unique data.",
+      "request": {
+        "method": "GET",
+        "path": "/api/messages/msg_2001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body_excerpt": "{\"body\":\"sent the wire\",\"owner\":\"u_bob\",\"secret\":\"BOB-MSG-8a09\"}\n"
+      },
+      "remediation": "On every request for `/api/messages/{id}`, after loading the message, verify server-side that the authenticated user's ID matches the message's owner (or an explicitly permitted recipient), and return 403/404 otherwise; never rely on the client or on ID obscurity.",
+      "schema_version": 1
+    },
+    {
+      "id": "messages:msg_1001:bob->alice",
+      "endpoint": "GET /api/messages/{id}",
+      "attacker": "bob",
+      "victim": "alice",
+      "verdict": "confirmed",
+      "checks": [
+        "status_2xx",
+        "victim_content_present",
+        "ground_truth_cross_boundary",
+        "cross_principal"
+      ],
+      "reason": "bob retrieved alice's message (msg_1001) \u2014 response carried the victim's unique data.",
+      "request": {
+        "method": "GET",
+        "path": "/api/messages/msg_1001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body_excerpt": "{\"body\":\"lunch at 1?\",\"owner\":\"u_alice\",\"secret\":\"ALICE-MSG-2e71\"}\n"
+      },
+      "remediation": "Enforce an ownership/authorization check on every request: resolve the message by `{id}` only within the authenticated user's scope, and return 403/404 if it does not belong to them. Do not rely on client-supplied identifiers alone\u2014scope the lookup (or add a post-fetch comparison) to the current user's identity.",
+      "schema_version": 1
+    },
+    {
+      "id": "orders:ord_2001:alice->bob",
+      "endpoint": "GET /api/orders/{id}",
+      "attacker": "alice",
+      "victim": "bob",
+      "verdict": "false_positive",
+      "checks": [
+        "cross_principal"
+      ],
+      "reason": "access denied (HTTP 403); access control held.",
+      "request": {
+        "method": "GET",
+        "path": "/api/orders/ord_2001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 403,
+        "body_excerpt": "{\"error\":\"forbidden\",\"status\":403}\n"
+      },
+      "remediation": null,
+      "schema_version": 1
+    },
+    {
+      "id": "orders:ord_1001:bob->alice",
+      "endpoint": "GET /api/orders/{id}",
+      "attacker": "bob",
+      "victim": "alice",
+      "verdict": "false_positive",
+      "checks": [
+        "cross_principal"
+      ],
+      "reason": "access denied (HTTP 403); access control held.",
+      "request": {
+        "method": "GET",
+        "path": "/api/orders/ord_1001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 403,
+        "body_excerpt": "{\"error\":\"forbidden\",\"status\":403}\n"
+      },
+      "remediation": null,
+      "schema_version": 1
+    },
+    {
+      "id": "profiles:u_bob:alice->bob",
+      "endpoint": "GET /api/users/{id}/profile",
+      "attacker": "alice",
+      "victim": "bob",
+      "verdict": "false_positive",
+      "checks": [
+        "cross_principal"
+      ],
+      "reason": "access denied (HTTP 403); access control held.",
+      "request": {
+        "method": "GET",
+        "path": "/api/users/u_bob/profile",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 403,
+        "body_excerpt": "{\"error\":\"forbidden\",\"status\":403}\n"
+      },
+      "remediation": null,
+      "schema_version": 1
+    },
+    {
+      "id": "profiles:u_alice:bob->alice",
+      "endpoint": "GET /api/users/{id}/profile",
+      "attacker": "bob",
+      "victim": "alice",
+      "verdict": "false_positive",
+      "checks": [
+        "cross_principal"
+      ],
+      "reason": "access denied (HTTP 403); access control held.",
+      "request": {
+        "method": "GET",
+        "path": "/api/users/u_alice/profile",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 403,
+        "body_excerpt": "{\"error\":\"forbidden\",\"status\":403}\n"
+      },
+      "remediation": null,
+      "schema_version": 1
+    },
+    {
+      "id": "settings:set_2001:alice->bob",
+      "endpoint": "GET /api/settings/{id}",
+      "attacker": "alice",
+      "victim": "bob",
+      "verdict": "false_positive",
+      "checks": [
+        "cross_principal"
+      ],
+      "reason": "access denied (HTTP 403); access control held.",
+      "request": {
+        "method": "GET",
+        "path": "/api/settings/set_2001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 403,
+        "body_excerpt": "{\"error\":\"forbidden\",\"status\":403}\n"
+      },
+      "remediation": null,
+      "schema_version": 1
+    },
+    {
+      "id": "settings:set_1001:bob->alice",
+      "endpoint": "GET /api/settings/{id}",
+      "attacker": "bob",
+      "victim": "alice",
+      "verdict": "false_positive",
+      "checks": [
+        "cross_principal"
+      ],
+      "reason": "access denied (HTTP 403); access control held.",
+      "request": {
+        "method": "GET",
+        "path": "/api/settings/set_1001",
+        "headers": {
+          "Authorization": "Bearer <redacted>"
+        }
+      },
+      "response": {
+        "status": 403,
+        "body_excerpt": "{\"error\":\"forbidden\",\"status\":403}\n"
+      },
+      "remediation": null,
+      "schema_version": 1
+    }
+  ],
+  "schema_version": 1
+}

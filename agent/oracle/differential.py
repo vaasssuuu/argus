@@ -61,7 +61,7 @@ def behavioral_verdict(attempt: Attempt, manifest: dict):
 
     if confirmed:
         reason = (f"{attempt.attacker} retrieved {attempt.victim}'s {attempt.resource[:-1]} "
-                  f"({attempt.object_id}) — response carried the victim's unique data.")
+                  f"({attempt.object_id}), and the response carried the victim's unique data.")
     elif not cross_principal:
         reason = "attacker and victim are the same principal; not cross-boundary."
     elif not status_2xx:
