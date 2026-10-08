@@ -1,6 +1,6 @@
 [project]
 name = "argus-idor"
-version = "0.1.0"
+version = "0.1.1"
 description = "Autonomous IDOR/BAC agent that proves findings by generating and executing real exploits in isolation."
 readme = "README.md"
 license = { text = "MIT" }
