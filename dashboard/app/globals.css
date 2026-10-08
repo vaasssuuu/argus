@@ -3,6 +3,8 @@
    Deep-ink, product-grade. Lime = confirmed (the signature win); steel = rejected.
    ========================================================================== */
 
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
 :root {
   /* surfaces */
   --ink:        #07080b;
@@ -26,8 +28,8 @@
   --danger:     #ff6b5b;      /* the 403 / 'held' uses reject; danger reserved */
 
   /* type */
-  --font: var(--font-display), "Segoe UI", system-ui, sans-serif;
-  --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --font: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* geometry */
   --r:   14px;
