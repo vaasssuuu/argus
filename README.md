@@ -4,6 +4,8 @@
 
 The proof loop is the product. Argus does not flag "possible" issues and leave you to triage a pile of maybes. It tries the attack, in a sandbox, and shows you exactly what happened.
 
+**Live demo:** [argus-vatsalya.vercel.app](https://argus-vatsalya.vercel.app)
+
 ```bash
 pip install argus-idor
 
@@ -109,7 +111,7 @@ Argus is deliberately **one vulnerability family, done deeply**. These are expli
 * [x] Docker sandbox + egress guardrail
 * [x] Eval harness (precision/recall + confusion matrix)
 * [x] Installable, multi-provider (`pip install argus-idor`)
-* [x] Replay dashboard (built; deploy in progress)
+* [x] Replay dashboard ([live demo](https://argus-vatsalya.vercel.app))
 * [ ] `--target` for your own locally-authorized app
 * [ ] CI (scan on push, publish the evidence artifact)
 
