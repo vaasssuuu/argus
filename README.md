@@ -1,4 +1,6 @@
-# Argus
+<p align="center"><img src="assets/argus.svg" width="84" alt="Argus logo" /></p>
+
+<h1 align="center">Argus</h1>
 
 **An autonomous agent that finds one class of vulnerability, IDOR / broken access control, and *proves* each finding by generating and executing a real exploit in an isolated sandbox.** Every result is a verdict with evidence: exploit confirmed, or false positive rejected.
 

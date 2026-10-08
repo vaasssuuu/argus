@@ -45,7 +45,13 @@ export default function Replay({ trace, report }: { trace: Trace; report: Report
       <Backdrop />
 
       <div className="topbar">
-        <div className="brand"><span className="mark" />ARGUS</div>
+        <div className="brand">
+          <svg className="mark" viewBox="0 0 64 64" width="22" height="22" fill="none" aria-hidden="true">
+            <path d="M8 32 Q32 12 56 32 Q32 52 8 32 Z" stroke="currentColor" strokeWidth="3.4" strokeLinejoin="round" />
+            <rect x="24.5" y="24.5" width="15" height="15" rx="3.6" fill="#b6ff3c" />
+          </svg>
+          ARGUS
+        </div>
         <div className="nav">
           <div className="meta"><span>run <b>{trace.run_id}</b></span></div>
           <a className="btn-contribute" href={REPO}>★ Contribute</a>

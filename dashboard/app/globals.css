@@ -93,10 +93,7 @@ main.wrap { position: relative; z-index: 1; }
   backdrop-filter: blur(12px);
 }
 .brand { display: flex; align-items: center; gap: 11px; font-weight: 700; letter-spacing: 0.14em; }
-.brand .mark {
-  width: 11px; height: 11px; border-radius: 3px;
-  background: var(--confirm); box-shadow: 0 0 14px var(--confirm);
-}
+.brand .mark { display: block; color: var(--text); filter: drop-shadow(0 0 5px var(--confirm-glow)); }
 .topbar .nav { display: flex; align-items: center; gap: 20px; }
 .topbar .meta { font-family: var(--mono); font-size: 12.5px; color: var(--faint); display: flex; gap: 18px; }
 .topbar .meta b { color: var(--dim); font-weight: 500; }
