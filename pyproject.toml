@@ -1,8 +1,11 @@
 [project]
-name = "argus"
+name = "argus-idor"
 version = "0.1.0"
 description = "Autonomous IDOR/BAC agent that proves findings by generating and executing real exploits in isolation."
+readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
+authors = [{ name = "Vatsalya Soni", email = "vatsalyasoni20@gmail.com" }]
 dependencies = [
     "flask==3.1.3",
     "pyyaml==6.0.3",
@@ -10,13 +13,24 @@ dependencies = [
     "langgraph==1.2.12",
 ]
 
+[project.scripts]
+argus = "cli.argus:main"
+
+[project.urls]
+Homepage = "https://github.com/vaasssuuu/argus"
+
 [dependency-groups]
 dev = [
     "pytest>=8.3",
 ]
 
-[tool.uv]
-package = false
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# Installs the tool's packages; pipx isolates them so the generic names are fine.
+packages = ["agent", "cli", "runner", "target", "target2", "evals"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

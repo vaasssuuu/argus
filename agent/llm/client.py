@@ -1,9 +1,10 @@
 """Provider-agnostic LLM call site.
 
-DeepSeek is OpenAI-compatible, so the "provider" is just a base_url + model string read from
-the environment — swap providers by changing `.env`, never this code. The LLM only ever
-*proposes* (candidates, PoCs, remediation text); it never renders a verdict (that's the
-oracle). Temperature is 0 so proposals — and therefore captured traces — are reproducible.
+DeepSeek, OpenAI and Gemini all speak the OpenAI API, so switching providers is config, not
+code: pick a provider and the client uses that provider's base URL, default model, and key env
+var. Override the model with ARGUS_MODEL (or the CLI's --model). The LLM only ever *proposes*
+(candidates, PoCs, remediation); it never renders a verdict (that's the oracle). Temperature 0
+keeps proposals, and the captured traces, reproducible.
 """
 import os
 from pathlib import Path
@@ -11,6 +12,16 @@ from pathlib import Path
 from openai import OpenAI
 
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
+
+# provider -> OpenAI-compatible endpoint, a safe default model, and the key env var.
+PROVIDERS = {
+    "deepseek": {"base_url": "https://api.deepseek.com",
+                 "model": "deepseek-flash", "key_env": "DEEPSEEK_API_KEY"},
+    "openai":   {"base_url": "https://api.openai.com/v1",
+                 "model": "gpt-4o-mini", "key_env": "OPENAI_API_KEY"},
+    "gemini":   {"base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                 "model": "gemini-2.0-flash", "key_env": "GEMINI_API_KEY"},
+}
 
 
 def _load_env(path=ENV_FILE) -> None:
@@ -26,15 +37,22 @@ def _load_env(path=ENV_FILE) -> None:
 
 
 class LLM:
-    def __init__(self, create=None):
+    def __init__(self, provider=None, model=None, create=None):
         _load_env()
-        self.model = os.environ.get("DEEPSEEK_MODEL", "deepseek-flash")
+        provider = provider or os.environ.get("ARGUS_PROVIDER", "deepseek")
+        if provider not in PROVIDERS:
+            raise ValueError(f"unknown provider '{provider}'; choose from {list(PROVIDERS)}")
+        cfg = PROVIDERS[provider]
+        self.provider = provider
+        self.model = model or os.environ.get("ARGUS_MODEL") or cfg["model"]
         # `create` is injectable so tests (and a future provider) avoid a live call.
         if create is None:
-            client = OpenAI(
-                api_key=os.environ["DEEPSEEK_API_KEY"],
-                base_url=os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
-            )
+            api_key = os.environ.get(cfg["key_env"])
+            if not api_key:
+                raise RuntimeError(f"missing {cfg['key_env']} for provider '{provider}' "
+                                   f"(set it in .env or the environment)")
+            client = OpenAI(api_key=api_key,
+                            base_url=os.environ.get("ARGUS_BASE_URL", cfg["base_url"]))
             create = lambda **kw: client.chat.completions.create(**kw)
         self._create = create
 

@@ -5,13 +5,14 @@ over the restricted network — so reaching the target is never in the agent's h
 sandbox's.
 """
 import json
+import shutil
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 
 from runner import egress
 
-ROOT = Path(__file__).resolve().parents[1]
 TARGET_IMAGE = "argus-target"
 TARGET_NAME = "argus-target"  # also the DNS name the sandbox uses on the network
 TARGET_BASE = "http://argus-target:5000"
@@ -22,11 +23,34 @@ def _run(args):
     return subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace")
 
 
+def _build_context() -> Path:
+    """Assemble a minimal Docker build context from the installed package files.
+
+    Works both in-repo and when pip-installed: target/ and runner/ are located via their
+    packages (not a repo root) and copied into a small temp dir, so the build context stays
+    tiny instead of becoming the whole site-packages tree."""
+    import runner
+    import target
+
+    ctx = Path(tempfile.mkdtemp(prefix="argus-ctx-"))
+    shutil.copytree(Path(target.__file__).parent, ctx / "target",
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "test_*.py"))
+    runner_dir = Path(runner.__file__).parent
+    (ctx / "runner").mkdir()
+    shutil.copy(runner_dir / "execute.py", ctx / "runner" / "execute.py")
+    shutil.copy(runner_dir / "sandbox.Dockerfile", ctx / "runner" / "sandbox.Dockerfile")
+    return ctx
+
+
 def build_images() -> None:
-    _run(["docker", "build", "-f", str(ROOT / "target" / "Dockerfile"),
-          "-t", TARGET_IMAGE, str(ROOT)]).check_returncode()
-    _run(["docker", "build", "-f", str(ROOT / "runner" / "sandbox.Dockerfile"),
-          "-t", egress.RUNNER_IMAGE, str(ROOT)]).check_returncode()
+    ctx = _build_context()
+    try:
+        _run(["docker", "build", "-f", str(ctx / "target" / "Dockerfile"),
+              "-t", TARGET_IMAGE, str(ctx)]).check_returncode()
+        _run(["docker", "build", "-f", str(ctx / "runner" / "sandbox.Dockerfile"),
+              "-t", egress.RUNNER_IMAGE, str(ctx)]).check_returncode()
+    finally:
+        shutil.rmtree(ctx, ignore_errors=True)
 
 
 class DockerRunner:

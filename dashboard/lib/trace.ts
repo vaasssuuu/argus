@@ -30,14 +30,17 @@ export type Trace = {
   schema_version: number;
 };
 
+export type Metrics = {
+  precision: number;
+  recall: number;
+  accuracy: number;
+  confusion: { TP: number; FP: number; FN: number; TN: number };
+  n_cases: number;
+};
+
 export type Report = {
-  metrics: {
-    precision: number;
-    recall: number;
-    accuracy: number;
-    confusion: { TP: number; FP: number; FN: number; TN: number };
-    n_cases: number;
-  };
+  metrics: Metrics;
+  per_target?: Record<string, Metrics>;
 };
 
 export const isConfirmed = (f: Finding) => f.verdict === "confirmed";

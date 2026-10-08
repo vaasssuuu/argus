@@ -29,3 +29,21 @@ def test_json_mode_requests_json_object():
     create, captured = _fake("{}")
     LLM(create=create).chat("s", "u", json_mode=True)
     assert captured["response_format"] == {"type": "json_object"}
+
+
+def test_provider_selects_default_model():
+    create, captured = _fake("ok")
+    LLM(provider="gemini", create=create).chat("s", "u")
+    assert captured["model"] == "gemini-2.0-flash"
+
+
+def test_explicit_model_overrides_provider_default():
+    create, captured = _fake("ok")
+    LLM(provider="openai", model="gpt-4o", create=create).chat("s", "u")
+    assert captured["model"] == "gpt-4o"
+
+
+def test_unknown_provider_rejected():
+    import pytest
+    with pytest.raises(ValueError):
+        LLM(provider="not-a-provider", create=lambda **k: None)

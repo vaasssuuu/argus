@@ -63,6 +63,23 @@ body {
 a { color: inherit; text-decoration: none; }
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+main.wrap { position: relative; z-index: 1; }
+
+/* ── backdrop: faint IDOR probes drifting upward ─────────────────────────── */
+.backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.probe { position: absolute; top: 0; white-space: nowrap;
+  font-family: var(--mono); font-size: 12px; color: rgba(152, 161, 179, 0.16);
+  animation-name: drift; animation-timing-function: linear; animation-iteration-count: infinite; }
+.probe .arrow { color: rgba(152, 161, 179, 0.1); }
+.probe .leak { color: rgba(182, 255, 60, 0.26); }
+.probe .held { color: rgba(138, 160, 198, 0.22); }
+@keyframes drift {
+  0%   { transform: translateY(108vh); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(-12vh); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .probe { animation: none; display: none; } }
 
 /* ── top bar ─────────────────────────────────────────────────────────────── */
 .topbar {
@@ -78,8 +95,36 @@ a { color: inherit; text-decoration: none; }
   width: 11px; height: 11px; border-radius: 3px;
   background: var(--confirm); box-shadow: 0 0 14px var(--confirm);
 }
+.topbar .nav { display: flex; align-items: center; gap: 20px; }
 .topbar .meta { font-family: var(--mono); font-size: 12.5px; color: var(--faint); display: flex; gap: 18px; }
 .topbar .meta b { color: var(--dim); font-weight: 500; }
+.btn-contribute { display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
+  font-size: 13.5px; padding: 8px 16px; border-radius: 9px; color: #0a0a0a;
+  background: var(--confirm); box-shadow: 0 0 20px var(--confirm-glow); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.btn-contribute:hover { transform: translateY(-1px); box-shadow: 0 0 28px var(--confirm-glow); }
+
+/* ── install block (hero) ────────────────────────────────────────────────── */
+.install { margin-top: 36px; border: 1px solid var(--line-strong); border-radius: var(--r);
+  background: var(--ink-2); overflow: hidden; max-width: 640px; }
+.install .install-bar { display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.install .install-bar .tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--faint); }
+.install .copy { font-family: var(--mono); font-size: 12px; color: var(--dim); cursor: pointer;
+  background: transparent; border: 1px solid var(--line-strong); border-radius: 7px; padding: 5px 11px;
+  transition: all 0.15s ease; }
+.install .copy:hover { border-color: var(--confirm-dim); color: var(--text); }
+.install pre { font-family: var(--mono); font-size: 14px; line-height: 1.9; padding: 16px 18px;
+  color: var(--text); overflow-x: auto; }
+.install pre .prompt { color: var(--confirm); }
+.install pre .cmt { color: var(--faint); }
+
+/* ── footer credit ───────────────────────────────────────────────────────── */
+.footcredit { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 24px;
+  text-align: center; color: var(--dim); font-size: 14px; }
+.footcredit .who { color: var(--text); font-weight: 600; }
+.footcredit a { color: var(--confirm); }
+.footcredit .sub { display: block; margin-top: 6px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
 
 /* ── hero ────────────────────────────────────────────────────────────────── */
 .hero { padding: 76px 0 40px; }
@@ -105,6 +150,9 @@ a { color: inherit; text-decoration: none; }
 .stat .n.cool { color: var(--reject); }
 .stat .k { font-size: 12.5px; color: var(--faint); margin-top: 9px;
   text-transform: uppercase; letter-spacing: 0.12em; }
+.benchline { margin-top: 18px; font-family: var(--mono); font-size: 13px;
+  color: var(--faint); line-height: 1.65; max-width: 72ch; }
+.benchline { border-left: 2px solid var(--confirm-dim); padding-left: 14px; }
 
 /* ── section scaffolding ─────────────────────────────────────────────────── */
 section { padding: 52px 0; }
@@ -189,6 +237,13 @@ section { padding: 52px 0; }
   border: 1px solid color-mix(in srgb, var(--confirm) 22%, var(--line)); border-radius: 6px; padding: 4px 9px; }
 .fix { font-size: 13.5px; color: var(--dim); border-left: 2px solid var(--confirm-dim); padding: 4px 0 4px 13px; }
 .fix b { color: var(--text); font-weight: 600; }
+
+/* ── run it ──────────────────────────────────────────────────────────────── */
+.runit { display: grid; gap: 16px; }
+.runit pre { font-family: var(--mono); font-size: 13.5px; line-height: 1.85; color: var(--text);
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 18px 20px; overflow-x: auto; }
+.runit p { color: var(--dim); max-width: 70ch; }
 
 /* ── footer ──────────────────────────────────────────────────────────────── */
 footer { border-top: 1px solid var(--line); padding: 34px 0 60px; color: var(--faint);

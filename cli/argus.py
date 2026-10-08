@@ -1,32 +1,38 @@
-"""argus scan — run the validation loop against the bundled target and emit a trace.
+"""argus — autonomous IDOR / broken-access-control validation.
 
-    uv run python -m cli.argus scan
+    argus eval                          # precision/recall benchmark (no Docker, no API key)
+    argus scan                          # run the loop in the sandbox, emit a trace
+    argus scan --provider gemini        # pick the LLM provider (deepseek|openai|gemini)
+    argus scan --model gemini-2.0-flash # override the model
 
-Brings up the sandboxed target, runs recon → candidates → PoC → execute → oracle → remediate,
-prints each verdict, and writes the full run trace to traces/.
+`scan` brings up the sandboxed target and runs recon -> candidates -> PoC -> execute -> oracle
+-> remediate, printing each verdict and writing the full trace to traces/.
 """
 import argparse
 import uuid
 from dataclasses import asdict
 from pathlib import Path
 
-from agent.graph import build_graph
-from agent.llm.client import LLM
-from agent.oracle.differential import load_manifest
 from agent.schemas.finding import CONFIRMED
 from agent.schemas.trace import Trace
-from runner.docker_runner import DockerRunner
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def scan() -> Path:
+def scan(provider=None, model=None) -> Path:
+    # Imported lazily so `argus eval` needs neither Docker nor the LLM deps at import time.
+    from agent.graph import build_graph
+    from agent.llm.client import LLM
+    from agent.oracle.differential import load_manifest
+    from runner.docker_runner import DockerRunner
+
     manifest = load_manifest()
     principals = {a: {"id": p["id"], "token": p["token"]} for a, p in manifest["principals"].items()}
     trace = Trace(run_id=uuid.uuid4().hex[:8], target="bundled: argus-target")
+    llm = LLM(provider=provider, model=model)
 
     with DockerRunner() as runner:
-        graph = build_graph(LLM(), runner, manifest)
+        graph = build_graph(llm, runner, manifest)
         final = graph.invoke(
             {"principals": principals, "findings": [], "cursor": 0, "trace": trace},
             {"recursion_limit": 100},
@@ -38,19 +44,32 @@ def scan() -> Path:
     trace.save(out)
 
     confirmed = sum(f.verdict == CONFIRMED for f in findings)
-    print(f"\nArgus — {len(findings)} candidate(s) adjudicated: "
+    print(f"\nArgus [{llm.provider}:{llm.model}] - {len(findings)} adjudicated: "
           f"{confirmed} confirmed, {len(findings) - confirmed} rejected\n")
     for f in findings:
         mark = "CONFIRMED" if f.verdict == CONFIRMED else "rejected "
-        print(f"  [{mark}] {f.endpoint}  {f.attacker}->{f.victim}  — {f.reason}")
+        print(f"  [{mark}] {f.endpoint}  {f.attacker}->{f.victim}  {f.reason}")
     print(f"\ntrace: {out}")
     return out
 
 
 def main():
-    ap = argparse.ArgumentParser(prog="argus")
-    ap.add_argument("command", choices=["scan"], help="what to run")
-    scan() if ap.parse_args().command == "scan" else None
+    ap = argparse.ArgumentParser(prog="argus", description="Prove IDOR / BAC findings, don't guess.")
+    sub = ap.add_subparsers(dest="command", required=True)
+
+    s = sub.add_parser("scan", help="run the validation loop in the sandbox and emit a trace")
+    s.add_argument("--provider", choices=["deepseek", "openai", "gemini"],
+                   help="LLM provider (default: env ARGUS_PROVIDER or deepseek)")
+    s.add_argument("--model", help="model id override")
+
+    sub.add_parser("eval", help="run the precision/recall benchmark (no Docker, no API key)")
+
+    args = ap.parse_args()
+    if args.command == "scan":
+        scan(provider=args.provider, model=args.model)
+    elif args.command == "eval":
+        from evals.harness import _print, run
+        _print(run())
 
 
 if __name__ == "__main__":
