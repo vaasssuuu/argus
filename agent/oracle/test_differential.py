@@ -1,6 +1,6 @@
 """Oracle self-checks: it confirms a real IDOR, rejects the trap, and never confirms on
 weak evidence. Every branch of the verdict is exercised against the real manifest."""
-from agent.oracle.differential import classify, load_manifest
+from agent.oracle.differential import classify, differential_verdict, load_manifest
 from agent.schemas.finding import CONFIRMED, FALSE_POSITIVE, Attempt
 
 M = load_manifest()
@@ -43,4 +43,33 @@ def test_ground_truth_backstops_a_buggy_looking_trap():
 def test_rejects_same_principal():
     f = classify(_attempt("GET /api/invoices/{id}", "invoices", "alice", "alice",
                           "inv_1001", 200, '{"secret":"ALICE-INV-7a3f"}'), M)
+    assert f.verdict == FALSE_POSITIVE and "same principal" in f.reason
+
+
+# ── manifest-free differential oracle (bring-your-own-target) ─────────────────────────────
+def _diff(attacker, victim, a, o):
+    return differential_verdict(attacker=attacker, victim=victim, endpoint="GET /api/x/{id}",
+                                object_id="42", resp_attacker=a, resp_owner=o, request={})
+
+
+def test_differential_confirms_when_attacker_sees_owner_view():
+    f = _diff("alice", "bob", {"status": 200, "body": '{"id":42,"data":"bob"}'},
+              {"status": 200, "body": '{"id":42,"data":"bob"}'})
+    assert f.verdict == CONFIRMED and "matches_owner_view" in f.checks
+
+
+def test_differential_rejects_denied():
+    f = _diff("alice", "bob", {"status": 403, "body": "forbidden"},
+              {"status": 200, "body": '{"id":42,"data":"bob"}'})
+    assert f.verdict == FALSE_POSITIVE and "denied" in f.reason
+
+
+def test_differential_rejects_when_response_differs():
+    f = _diff("alice", "bob", {"status": 200, "body": '{"id":42,"data":"alice-own"}'},
+              {"status": 200, "body": '{"id":42,"data":"bob"}'})
+    assert f.verdict == FALSE_POSITIVE and "did not match" in f.reason
+
+
+def test_differential_rejects_same_principal():
+    f = _diff("alice", "alice", {"status": 200, "body": "same"}, {"status": 200, "body": "same"})
     assert f.verdict == FALSE_POSITIVE and "same principal" in f.reason

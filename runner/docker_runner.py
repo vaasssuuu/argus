@@ -42,33 +42,55 @@ def _build_context() -> Path:
     return ctx
 
 
+def _docker_build(dockerfile, image, ctx) -> None:
+    _run(["docker", "build", "-f", str(dockerfile), "-t", image, str(ctx)]).check_returncode()
+
+
 def build_images() -> None:
+    """Build the bundled target + the runner image (used by the self-check / bundled scan)."""
     ctx = _build_context()
     try:
-        _run(["docker", "build", "-f", str(ctx / "target" / "Dockerfile"),
-              "-t", TARGET_IMAGE, str(ctx)]).check_returncode()
-        _run(["docker", "build", "-f", str(ctx / "runner" / "sandbox.Dockerfile"),
-              "-t", egress.RUNNER_IMAGE, str(ctx)]).check_returncode()
+        _docker_build(ctx / "target" / "Dockerfile", TARGET_IMAGE, ctx)
+        _docker_build(ctx / "runner" / "sandbox.Dockerfile", egress.RUNNER_IMAGE, ctx)
     finally:
         shutil.rmtree(ctx, ignore_errors=True)
 
 
 class DockerRunner:
-    """Context manager: brings the sandbox up on enter, tears the target down on exit."""
+    """Context manager: brings the sandbox up on enter, tears the target down on exit.
+
+    Defaults to the bundled target. For a user's own app, pass `target_image` (an image that
+    already exists locally) + the `target_port` it listens on, with `build_target=False` to skip
+    building the bundled app. Either way the target runs on the egress-locked internal network,
+    so the sandbox can reach it and nothing else."""
+
+    def __init__(self, target_image: str = TARGET_IMAGE, target_port: int = 5000,
+                 build_target: bool = True):
+        self.target_image = target_image
+        self.target_port = target_port
+        self.build_target = build_target
+        self.target_base = f"http://{TARGET_NAME}:{target_port}"
 
     def __enter__(self):
-        build_images()
+        ctx = _build_context()
+        try:
+            _docker_build(ctx / "runner" / "sandbox.Dockerfile", egress.RUNNER_IMAGE, ctx)
+            if self.build_target:
+                _docker_build(ctx / "target" / "Dockerfile", TARGET_IMAGE, ctx)
+        finally:
+            shutil.rmtree(ctx, ignore_errors=True)
         egress.ensure_network()
         _run(["docker", "rm", "-f", TARGET_NAME])  # clear any stale instance
         _run(["docker", "run", "-d", "--name", TARGET_NAME,
-              "--network", egress.NETWORK, TARGET_IMAGE]).check_returncode()
+              "--network", egress.NETWORK, self.target_image]).check_returncode()
         self._wait_ready()
         return self
 
-    def _wait_ready(self, tries=30) -> None:
+    def _wait_ready(self, tries=40) -> None:
+        # Any HTTP response means the server is up (a user's app may have no /api/health).
         for _ in range(tries):
             try:
-                if self.run_poc({"method": "GET", "path": "/api/health"})["status"] == 200:
+                if "status" in self.run_poc({"method": "GET", "path": "/"}):
                     return
             except Exception:
                 pass
@@ -78,7 +100,7 @@ class DockerRunner:
     def run_poc(self, poc: dict) -> dict:
         r = _run(["docker", "run", "--rm", "--network", egress.NETWORK,
                   "-e", "POC=" + json.dumps(poc),
-                  "-e", "TARGET_BASE_URL=" + TARGET_BASE,
+                  "-e", "TARGET_BASE_URL=" + self.target_base,
                   egress.RUNNER_IMAGE, "python", "/app/execute.py"])
         r.check_returncode()
         return json.loads(r.stdout)

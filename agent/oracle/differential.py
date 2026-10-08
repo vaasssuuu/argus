@@ -95,3 +95,45 @@ def classify(attempt: Attempt, manifest: dict) -> Finding:
         request=attempt.request,
         response={"status": attempt.status, "body_excerpt": attempt.body_text[:500]},
     )
+
+
+def differential_verdict(*, attacker, victim, endpoint, object_id, resp_attacker, resp_owner, request) -> Finding:
+    """Manifest-free detection for a user's OWN app (no ground-truth secrets or labels).
+
+    Attacker A and owner B each request B's object. If A gets a 2xx whose body is identical to
+    what B sees for B's own object, A has read B's data: a confirmed IDOR. The owner's own
+    response *is* the ground truth for that object, so no pre-known secret is needed. Exact-match
+    is deliberately conservative, so this never raises a false positive (at worst it misses a
+    leak whose response embeds the requester's identity).
+
+    resp_attacker / resp_owner are {"status": int, "body": str} from the runner.
+    """
+    a_status = resp_attacker["status"]
+    status_2xx = 200 <= a_status < 300
+    a_body = (resp_attacker.get("body") or "").strip()
+    o_body = (resp_owner.get("body") or "").strip()
+    matches_owner = bool(a_body) and a_body == o_body
+    cross = attacker != victim
+    confirmed = status_2xx and matches_owner and cross
+
+    if confirmed:
+        verdict = CONFIRMED
+        checks = ["status_2xx", "matches_owner_view", "cross_principal"]
+        reason = (f"{attacker} received the exact object {victim} owns ({object_id}); the response is "
+                  f"byte-for-byte what {victim} sees, so {attacker} read {victim}'s data.")
+    else:
+        verdict = FALSE_POSITIVE
+        checks = []
+        if not cross:
+            reason = "attacker and owner are the same principal; not cross-boundary."
+        elif not status_2xx:
+            reason = f"access denied (HTTP {a_status}); access control held."
+        else:
+            reason = "2xx but the response did not match the owner's own view; no cross-user leak."
+
+    return Finding(
+        id=f"{endpoint}:{object_id}:{attacker}->{victim}",
+        endpoint=endpoint, attacker=attacker, victim=victim, verdict=verdict,
+        checks=checks, reason=reason, request=request,
+        response={"status": a_status, "body_excerpt": a_body[:500]},
+    )

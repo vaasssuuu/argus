@@ -83,6 +83,16 @@ argus scan --provider deepseek   # deepseek | openai | gemini
 
 The LLM is provider-agnostic (any OpenAI-compatible API). Gemini defaults to the free `gemini-2.0-flash`. Keys are read from the environment, never passed on the command line.
 
+### Scan your own app
+
+Point Argus at an app **you own or are authorized to test**. Containerize it, write a short spec (two test accounts + which object ids each owns; see `examples/byo-target-spec.yaml`), and run:
+
+```bash
+argus scan --target-image your-app:latest --port 8080 --spec your-spec.yaml --i-own-this
+```
+
+No ground-truth manifest needed: the **differential oracle** confirms a leak only when the attacker account receives byte-for-byte what the owner account sees. Your app runs in the same egress-locked sandbox, so Argus can reach it and nothing else. Detection needs no API key; a provider key only adds fix suggestions.
+
 ## Project layout
 
 ```
@@ -112,7 +122,7 @@ Argus is deliberately **one vulnerability family, done deeply**. These are expli
 * [x] Eval harness (precision/recall + confusion matrix)
 * [x] Installable, multi-provider (`pip install argus-idor`)
 * [x] Replay dashboard ([live demo](https://argus-vatsalya.vercel.app))
-* [ ] `--target` for your own locally-authorized app
+* [x] `--target` for your own locally-authorized app (manifest-free differential oracle)
 * [ ] CI (scan on push, publish the evidence artifact)
 
 ## Contributing

@@ -1,0 +1,25 @@
+# Example target spec for scanning YOUR OWN app:
+#
+#   argus scan --target-image <your-image> --port <port> --spec this-file.yaml --i-own-this
+#
+# Describe your app: two or more test accounts (the headers that authenticate each), and which
+# object ids each account owns. No secrets, no vulnerability labels. Argus has each account
+# request another account's object and confirms a leak only when the attacker gets exactly what
+# the owner sees. Point it ONLY at systems you own or are authorized to test.
+#
+# The values below target the bundled demo image (argus-target, port 5000) so you can try the
+# flow immediately: `argus scan --target-image argus-target --port 5000 --spec examples/byo-target-spec.yaml --i-own-this`
+
+principals:
+  alice:
+    headers: { Authorization: "Bearer tok_alice_3f9a" }
+  bob:
+    headers: { Authorization: "Bearer tok_bob_7c2e" }
+
+objects:
+  - { endpoint: "GET /api/invoices/{id}",  id: inv_1001, owner: alice }
+  - { endpoint: "GET /api/invoices/{id}",  id: inv_2001, owner: bob }
+  - { endpoint: "GET /api/documents/{id}", id: doc_1001, owner: alice }
+  - { endpoint: "GET /api/documents/{id}", id: doc_2001, owner: bob }
+  - { endpoint: "GET /api/orders/{id}",    id: ord_1001, owner: alice }   # trap: ownership enforced
+  - { endpoint: "GET /api/orders/{id}",    id: ord_2001, owner: bob }     # trap: ownership enforced
