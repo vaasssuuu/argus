@@ -46,12 +46,7 @@ The oracle decides from *behavior alone*; the ground-truth labels are used only 
 
 ## How it works
 
-```mermaid
-flowchart LR
-    recon --> candidates --> poc["PoC synthesis"] --> exec["execute in sandbox"] --> oracle{oracle}
-    oracle -- "more candidates" --> poc
-    oracle -- "done" --> remediate --> trace[("trace + evidence")]
-```
+<p align="center"><img src="assets/architecture.png" width="620" alt="The Argus validation loop: recon, candidate generation, PoC synthesis, execute in a Docker sandbox, a deterministic oracle verdict, remediate, and a trace of evidence." /></p>
 
 A single LangGraph state machine (one agent, not a swarm) drives the loop: **recon** (crawl the target, enumerate endpoints and object ids) to **candidates** (the LLM proposes cross-user tests) to **PoC synthesis** (the LLM writes the exploit request) to **execute** (fire it in the sandbox) to **oracle** (the deterministic verdict) to **remediate** (a fix suggestion, for confirmed findings only).
 
