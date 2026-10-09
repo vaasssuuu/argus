@@ -54,7 +54,7 @@ export default function Replay({ trace, report }: { trace: Trace; report: Report
         </div>
         <div className="nav">
           <div className="meta"><span>run <b>{trace.run_id}</b></span></div>
-          <a className="btn-contribute" href={REPO}>★ Contribute</a>
+          <a className="btn-contribute" href={REPO} target="_blank" rel="noopener noreferrer">★ Contribute</a>
         </div>
       </div>
 
@@ -152,11 +152,11 @@ export default function Replay({ trace, report }: { trace: Trace; report: Report
 
         <footer>
           <span>Genuine captured evidence · replayed deterministically · no mocks.</span>
-          <a href={REPO}>github.com/vaasssuuu/argus →</a>
+          <a href={REPO} target="_blank" rel="noopener noreferrer">github.com/vaasssuuu/argus →</a>
         </footer>
         <div className="footcredit">
           Built by <span className="who">Vatsalya Soni</span>, CS undergrad. Argus is open source,{" "}
-          <a href={REPO}>now by you too</a>.
+          <a href={REPO} target="_blank" rel="noopener noreferrer">now by you too</a>.
           <span className="sub">prove it, don&apos;t guess.</span>
         </div>
       </main>
