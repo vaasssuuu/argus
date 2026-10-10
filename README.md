@@ -124,7 +124,7 @@ Argus is deliberately **one vulnerability family, done deeply**. These are expli
 
 ## Contributing
 
-Contributions are welcome. Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** first, especially the scope section (it is what keeps the project focused). For concrete, difficulty-tagged tasks you can pick up right now, see **[IDEAS.md](IDEAS.md)**.
+Contributions are welcome. Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** first, especially the scope section (it is what keeps the project focused). For concrete, difficulty-tagged tasks you can pick up right now, see **[IDEAS.md](IDEAS.md)**. All the best!
 
 ## License
 
