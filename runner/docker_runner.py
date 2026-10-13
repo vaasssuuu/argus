@@ -23,6 +23,36 @@ def _run(args):
     return subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace")
 
 
+class DockerUnavailable(RuntimeError):
+    """Docker can't be used: not installed, the daemon is down, or a needed image is missing.
+
+    Carries a message meant to be shown to the user as-is (not a stack trace)."""
+
+
+def ensure_docker() -> None:
+    """Fail early with a human-readable message if the Docker daemon isn't reachable."""
+    try:
+        reachable = _run(["docker", "info"]).returncode == 0
+    except FileNotFoundError:
+        raise DockerUnavailable(
+            "Docker does not appear to be installed (the `docker` command was not found).\n"
+            "Install Docker Desktop (https://docs.docker.com/get-docker/), start it, then retry.\n"
+            "Tip: `argus eval` runs the benchmark with no Docker and no API key.")
+    if not reachable:
+        raise DockerUnavailable(
+            "Docker is installed but not running (could not reach the Docker daemon).\n"
+            "Start Docker Desktop, wait until it reports 'running', then retry.\n"
+            "Tip: `argus eval` runs the benchmark with no Docker and no API key.")
+
+
+def ensure_image(image: str) -> None:
+    """Fail early with a human-readable message if a required local image is missing."""
+    if _run(["docker", "image", "inspect", image]).returncode != 0:
+        raise DockerUnavailable(
+            f"Docker image '{image}' was not found locally.\n"
+            f"Build or pull it first (e.g. `docker build -t {image} .`), then retry.")
+
+
 def _build_context() -> Path:
     """Assemble a minimal Docker build context from the installed package files.
 
@@ -48,6 +78,7 @@ def _docker_build(dockerfile, image, ctx) -> None:
 
 def build_images() -> None:
     """Build the bundled target + the runner image (used by the self-check / bundled scan)."""
+    ensure_docker()
     ctx = _build_context()
     try:
         _docker_build(ctx / "target" / "Dockerfile", TARGET_IMAGE, ctx)
@@ -72,6 +103,9 @@ class DockerRunner:
         self.target_base = f"http://{TARGET_NAME}:{target_port}"
 
     def __enter__(self):
+        ensure_docker()
+        if not self.build_target:          # user's own image must already exist locally
+            ensure_image(self.target_image)
         ctx = _build_context()
         try:
             _docker_build(ctx / "runner" / "sandbox.Dockerfile", egress.RUNNER_IMAGE, ctx)

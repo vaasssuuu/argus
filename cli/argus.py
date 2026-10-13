@@ -120,10 +120,14 @@ def main():
 
     args = ap.parse_args()
     if args.command == "scan":
-        if args.target_image:
-            _scan_byo(args)
-        else:
-            scan(provider=args.provider, model=args.model, as_json=args.json)
+        from runner.docker_runner import DockerUnavailable
+        try:
+            if args.target_image:
+                _scan_byo(args)
+            else:
+                scan(provider=args.provider, model=args.model, as_json=args.json)
+        except DockerUnavailable as e:
+            sys.exit(f"\nArgus needs Docker for `scan`.\n{e}")
     elif args.command == "eval":
         from evals.harness import _print, run
         report = run()

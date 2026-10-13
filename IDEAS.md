@@ -30,7 +30,7 @@ Difficulty: 🟢 good first issue · 🟡 medium · 🔴 ambitious.
 ## Runner and sandbox
 - 🟡 A second **sandbox backend** behind the existing abstraction (for example a microVM option),
   chosen at runtime.
-- 🟢 Friendlier errors when **Docker is not running** or an image is missing.
+- ✅ ~~Friendlier errors when **Docker is not running** or an image is missing.~~ (shipped)
 
 ## Dashboard
 - 🟡 A **target switcher** so the replay can show the clinic run as well as the saas run.
