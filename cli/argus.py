@@ -1,14 +1,17 @@
 """argus — autonomous IDOR / broken-access-control validation.
 
     argus eval                          # precision/recall benchmark (no Docker, no API key)
+    argus eval --json                   # same, as machine-readable JSON on stdout
     argus scan                          # run the loop in the sandbox, emit a trace
     argus scan --provider gemini        # pick the LLM provider (deepseek|openai|gemini)
     argus scan --model gemini-2.0-flash # override the model
+    argus scan --json                   # print the findings as JSON (for piping / CI)
 
 `scan` brings up the sandboxed target and runs recon -> candidates -> PoC -> execute -> oracle
 -> remediate, printing each verdict and writing the full trace to traces/.
 """
 import argparse
+import json
 import sys
 import uuid
 from dataclasses import asdict
@@ -20,7 +23,7 @@ from agent.schemas.trace import Trace
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def scan(provider=None, model=None) -> Path:
+def scan(provider=None, model=None, as_json=False) -> Path:
     # Imported lazily so `argus eval` needs neither Docker nor the LLM deps at import time.
     from agent.graph import build_graph
     from agent.llm.client import LLM
@@ -45,13 +48,30 @@ def scan(provider=None, model=None) -> Path:
     trace.save(out)
 
     confirmed = sum(f.verdict == CONFIRMED for f in findings)
-    print(f"\nArgus [{llm.provider}:{llm.model}] - {len(findings)} adjudicated: "
-          f"{confirmed} confirmed, {len(findings) - confirmed} rejected\n")
-    for f in findings:
-        mark = "CONFIRMED" if f.verdict == CONFIRMED else "rejected "
-        print(f"  [{mark}] {f.endpoint}  {f.attacker}->{f.victim}  {f.reason}")
-    print(f"\ntrace: {out}")
+    if as_json:
+        print(_as_json(trace.run_id, trace.target, trace.findings, confirmed, out,
+                       provider=llm.provider, model=llm.model))
+    else:
+        print(f"\nArgus [{llm.provider}:{llm.model}] - {len(findings)} adjudicated: "
+              f"{confirmed} confirmed, {len(findings) - confirmed} rejected\n")
+        for f in findings:
+            mark = "CONFIRMED" if f.verdict == CONFIRMED else "rejected "
+            print(f"  [{mark}] {f.endpoint}  {f.attacker}->{f.victim}  {f.reason}")
+        print(f"\ntrace: {out}")
     return out
+
+
+def _as_json(run_id, target, findings, confirmed, trace_path, **extra) -> str:
+    """Machine-readable scan result: run metadata, a summary, and the serialized findings."""
+    return json.dumps({
+        "run_id": run_id,
+        "target": target,
+        **extra,
+        "summary": {"adjudicated": len(findings), "confirmed": confirmed,
+                    "rejected": len(findings) - confirmed},
+        "findings": findings,
+        "trace": str(trace_path),
+    }, indent=2)
 
 
 def _scan_byo(args) -> None:
@@ -68,12 +88,16 @@ def _scan_byo(args) -> None:
     out = ROOT / "traces" / f"byo-{trace.run_id}.json"
     trace.save(out)
     confirmed = sum(f.verdict == CONFIRMED for f in findings)
-    print(f"\nArgus [byo:{args.target_image}] - {len(findings)} adjudicated: "
-          f"{confirmed} confirmed, {len(findings) - confirmed} rejected\n")
-    for f in findings:
-        mark = "CONFIRMED" if f.verdict == CONFIRMED else "rejected "
-        print(f"  [{mark}] {f.endpoint}  {f.attacker}->{f.victim}  {f.reason}")
-    print(f"\ntrace: {out}")
+    if args.json:
+        print(_as_json(trace.run_id, trace.target, [asdict(f) for f in findings], confirmed, out,
+                       target_image=args.target_image))
+    else:
+        print(f"\nArgus [byo:{args.target_image}] - {len(findings)} adjudicated: "
+              f"{confirmed} confirmed, {len(findings) - confirmed} rejected\n")
+        for f in findings:
+            mark = "CONFIRMED" if f.verdict == CONFIRMED else "rejected "
+            print(f"  [{mark}] {f.endpoint}  {f.attacker}->{f.victim}  {f.reason}")
+        print(f"\ntrace: {out}")
 
 
 def main():
@@ -89,18 +113,21 @@ def main():
     s.add_argument("--spec", help="target spec (accounts + object owners) for --target-image")
     s.add_argument("--i-own-this", action="store_true",
                    help="attest you own / are authorized to test the target (required for --target-image)")
+    s.add_argument("--json", action="store_true", help="print findings as JSON instead of text")
 
-    sub.add_parser("eval", help="run the precision/recall benchmark (no Docker, no API key)")
+    e = sub.add_parser("eval", help="run the precision/recall benchmark (no Docker, no API key)")
+    e.add_argument("--json", action="store_true", help="print the full report as JSON instead of the table")
 
     args = ap.parse_args()
     if args.command == "scan":
         if args.target_image:
             _scan_byo(args)
         else:
-            scan(provider=args.provider, model=args.model)
+            scan(provider=args.provider, model=args.model, as_json=args.json)
     elif args.command == "eval":
         from evals.harness import _print, run
-        _print(run())
+        report = run()
+        print(json.dumps(report, indent=2)) if args.json else _print(report)
 
 
 if __name__ == "__main__":
