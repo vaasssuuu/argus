@@ -80,6 +80,8 @@ argus scan --provider deepseek   # deepseek | openai | gemini
 
 The LLM is provider-agnostic (any OpenAI-compatible API). Gemini defaults to the free `gemini-2.0-flash`. Keys are read from the environment, never passed on the command line.
 
+Add `--json` to either command (`argus eval --json`, `argus scan --json`) to print the result as machine-readable JSON on stdout instead of the human-readable text, for piping into CI or other tooling.
+
 ### Scan your own app
 
 Point Argus at an app **you own or are authorized to test**. Containerize it, write a short spec (two test accounts + which object ids each owns; see `examples/byo-target-spec.yaml`), and run:

@@ -40,7 +40,7 @@ Difficulty: 🟢 good first issue · 🟡 medium · 🔴 ambitious.
 ## CLI and developer experience
 - 🟡 Accept an **OpenAPI spec** directly for `--target` instead of the custom spec format.
 - 🟡 **SARIF output** so findings drop into IDEs and CI dashboards.
-- 🟢 A `--json` flag that prints findings as machine-readable output.
+- ✅ ~~A `--json` flag that prints findings as machine-readable output.~~ (shipped)
 
 ## CI and packaging
 - 🟢 A **GitHub Actions** workflow that runs `argus eval` on every push (no Docker, no key) as a
